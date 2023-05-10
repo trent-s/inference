@@ -27,8 +27,12 @@ RUN cd /tmp \
  && rm -rf inference
 
 # Install dependencies
-RUN python3 -m pip install torch==1.4.0 onnx==1.6.0 transformers==2.4.0 \ 
-    onnxruntime==1.2.0 numpy==1.18.0 tokenization==1.0.7
+RUN python3 -m pip install onnx transformers onnxruntime numpy tokenization boto3
+RUN python3 -m pip install torch --index-url https://download.pytorch.org/whl/cu118
+RUN python3 -m pip install https://storage.googleapis.com/tpu-pytorch/wheels/cuda/118/torch_xla-2.0-cp38-cp38-linux_x86_64.whl
+
+# RUN python3 -m pip install torch==1.4.0 onnx==1.6.0 transformers==2.4.0 \ 
+#    onnxruntime==1.2.0 numpy==1.18.0 tokenization==1.0.7
 
 # Add user
 ARG GID

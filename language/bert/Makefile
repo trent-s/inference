@@ -118,7 +118,8 @@ download_onnx_model:
 
 .PHONY: build_docker
 build_docker:
-	@docker pull nvcr.io/nvidia/tensorrtserver:19.08-py3
+#	@docker pull nvcr.io/nvidia/tensorrtserver:19.08-py3
+	@docker pull nvcr.io/nvidia/tensorrt:22.12-py3
 	@cd DeepLearningExamples/TensorFlow/LanguageModeling/BERT && docker build . --rm -t mlperf-inference-bert
 	@docker build --build-arg GID=$(GROUPID) --build-arg UID=$(UID) --build-arg GROUP=$(GROUPNAME) --build-arg USER=$(UNAME) \
 		--build-arg BASE_IMAGE=mlperf-inference-bert -t mlperf-inference-bert - < Dockerfile

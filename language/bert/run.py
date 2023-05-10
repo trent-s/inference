@@ -26,7 +26,7 @@ sys.path.insert(0, os.getcwd())
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--backend", choices=["tf", "pytorch", "onnxruntime", "tf_estimator"], default="tf", help="Backend")
+        "--backend", choices=["tf", "pytorch", "onnxruntime", "tf_estimator", "xla"], default="tf", help="Backend")
     parser.add_argument("--scenario", choices=["SingleStream", "Offline",
                         "Server", "MultiStream"], default="Offline", help="Scenario")
     parser.add_argument("--accuracy", action="store_true",
@@ -74,6 +74,9 @@ def main():
     elif args.backend == "onnxruntime":
         from onnxruntime_SUT import get_onnxruntime_sut
         sut = get_onnxruntime_sut(args)
+    elif args.backend == "xla":
+        from xla_SUT import get_xla_sut
+        sut = get_xla_sut(args)
     else:
         raise ValueError("Unknown backend: {:}".format(args.backend))
 
