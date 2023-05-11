@@ -52,6 +52,10 @@ setup:
 .PHONY: init_submodule
 init_submodule:
 	@git submodule update --init DeepLearningExamples
+	cd DeepLearningExamples
+	git checkout master
+	git pull
+	cd -
 
 .PHONY: download_data
 download_data:
