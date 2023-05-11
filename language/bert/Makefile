@@ -153,6 +153,14 @@ run_pytorch_performance:
 run_pytorch_accuracy:
 	@python3 run.py --backend=pytorch --accuracy
 
+.PHONY: run_xla_performance
+run_xla_performance:
+	@python3 run.py --backend=xla
+
+.PHONY: run_xla_accuracy
+run_xla_accuracy:
+	@python3 run.py --backend=xla --accuracy
+
 .PHONY: run_onnxruntime_performance
 run_onnxruntime_performance:
 	@python3 run.py --backend=onnxruntime

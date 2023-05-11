@@ -14,5 +14,3 @@
 [submodule "tools/submission/power-dev"]
 	path = tools/submission/power-dev
 	url = ../power-dev
-[submodule "DeepLearningExamples"]
-	branch = master
