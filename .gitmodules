@@ -13,3 +13,7 @@
 [submodule "tools/submission/power-dev"]
 	path = tools/submission/power-dev
 	url = ../power-dev
+[submodule "DeepLearningExamples"]
+	path = DeepLearningExamples
+	url = https://github.com/trent-s/DeepLearningExamples.git
+	branch = master
