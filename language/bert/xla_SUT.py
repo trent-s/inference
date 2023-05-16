@@ -55,6 +55,9 @@ class BERT_xla_SUT():
 
         print("Loading PyTorch xla model...")
         self.model = BertForQuestionAnswering(config)
+        self.model = torch.compile(self.model, backend="torchxla_trace_once")
+        # self.model = torch.compile(self.model, backend="torchxla_trace_once", mode="max-autotune") 
+        # self.model = torch.compile(self.model, backend="torchxla_trace_once", mode="reduce-overhead")
         self.model.to(self.dev)
         self.model.eval()
         model_file = os.environ.get("ML_MODEL_FILE_WITH_PATH", "build/data/bert_tf_v1_1_large_fp32_384_v2/model.pytorch")
