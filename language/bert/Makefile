@@ -149,9 +149,18 @@ run_tf_accuracy:
 run_pytorch_performance:
 	@python3 run.py --backend=pytorch
 
+.PHONY: profile_pytorch_performance
+profile_pytorch_performance:
+	nsys profile -w true -t cuda,nvtx,osrt,cudnn,cublas -s cpu -f true --osrt-threshold=10000 -x true python3 run.py --backend=pytorch
+
 .PHONY: run_pytorch_accuracy
 run_pytorch_accuracy:
 	@python3 run.py --backend=pytorch --accuracy
+
+# will create output report file. analyze file with nsight-sys 
+.PHONY: profile_pytorch_accuracy
+profile_pytorch_accuracy:
+	nsys profile -w true -t cuda,nvtx,osrt,cudnn,cublas -s cpu -f true --osrt-threshold=10000 -x true python3 run.py --backend=pytorch --accuracy
 
 .PHONY: run_xla_performance
 run_xla_performance:
