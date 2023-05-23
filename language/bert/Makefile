@@ -123,7 +123,7 @@ download_onnx_model:
 .PHONY: build_docker
 build_docker:
 #	@docker pull nvcr.io/nvidia/tensorrtserver:19.08-py3
-	@docker pull nvcr.io/nvidia/tensorrt:22.12-py3
+	@docker pull nvcr.io/nvidia/tensorrt:23.04-py3
 	@cd DeepLearningExamples/TensorFlow/LanguageModeling/BERT && docker build . --rm -t mlperf-inference-bert
 	@docker build --build-arg GID=$(GROUPID) --build-arg UID=$(UID) --build-arg GROUP=$(GROUPNAME) --build-arg USER=$(UNAME) \
 		--build-arg BASE_IMAGE=mlperf-inference-bert -t mlperf-inference-bert - < Dockerfile
@@ -151,7 +151,7 @@ run_pytorch_performance:
 
 .PHONY: profile_pytorch_performance
 profile_pytorch_performance:
-	nsys profile -w true -t cuda,nvtx,osrt,cudnn,cublas -s cpu --cudabacktrace=all -f true --osrt-threshold=10000 -x true python3 run.py --backend=pytorch
+	nsys profile -w true -t cusparse,cuda,nvtx,osrt,cudnn,cublas -s cpu --cudabacktrace=all -f true --osrt-threshold=10000 -x true --stats=true python3 run.py --backend=pytorch
 
 .PHONY: run_pytorch_accuracy
 run_pytorch_accuracy:
@@ -160,7 +160,7 @@ run_pytorch_accuracy:
 # will create output report file. analyze file with nsight-sys 
 .PHONY: profile_pytorch_accuracy
 profile_pytorch_accuracy:
-	nsys profile -w true -t cuda,nvtx,osrt,cudnn,cublas -s cpu --cudabacktrace=all -f true --osrt-threshold=10000 -x true python3 run.py --backend=pytorch --accuracy
+	nsys profile -w true -t cusparse,cuda,nvtx,osrt,cudnn,cublas -s cpu --cudabacktrace=all -f true --osrt-threshold=10000 -x true --stats=true python3 run.py --backend=pytorch --accuracy
 
 .PHONY: run_xla_performance
 run_xla_performance:
