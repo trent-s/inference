@@ -1592,11 +1592,11 @@ def check_accuracy_dir(config, model, path, verbose):
                 if acc is not None and float(acc) >= acc_target:
                     all_accuracy_valid &= True
                     acc_seen[i] = True
-                    if i == 0:
-                        result_acc = acc
                 elif acc is not None:
                     all_accuracy_valid = False
                     log.warning("%s accuracy not met: expected=%f, found=%s", path, acc_target, acc)
+                if i == 0 and acc:
+                    result_acc = acc
                 acc = None
             if all(acc_seen) and hash_val:
                 break;
@@ -2767,7 +2767,7 @@ def check_results_dir(
                                 model_name,
                                 scenario,
                             )
-                            if not os.path.exists(compliance_dir):
+                            if not os.path.exists(compliance_dir) and "gptj" not in model_name:
                                 log.error("no compliance dir for %s", name)
                                 results[name] = None
                             else:
@@ -3170,8 +3170,8 @@ def check_compliance_dir(
         "rnnt",
         "bert-99",
         "bert-99.9",
-        "dlrm-99",
-        "dlrm-99.9",
+        "dlrm-v2-99",
+        "dlrm-v2-99.9",
         "3d-unet-99",
         "3d-unet-99.9",
         "retinanet",
