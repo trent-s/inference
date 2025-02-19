@@ -11,7 +11,6 @@ on:
     paths:
       - loadgen/**
 
-
 jobs:
   update_version:
     name: Update version only on ubuntu but used by windows and macos
@@ -70,6 +69,7 @@ jobs:
   
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
+    if: github.repository_owner == 'mlcommons'
     needs: update_version
     runs-on: ${{ matrix.os }}
     strategy:
@@ -101,6 +101,7 @@ jobs:
           path: wheels
 
   publish_wheels:
+    if: github.repository_owner == 'mlcommons'
     needs: build_wheels  # Wait for the build_wheels job to complete
     runs-on: ubuntu-latest  # Only run this job on Linux
     environment: release
