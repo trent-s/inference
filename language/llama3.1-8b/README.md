@@ -9,7 +9,7 @@
 
 ## Automated command to run the benchmark via MLFlow
 
-Please see the [new docs site](https://docs.mlcommons.org/inference/benchmarks/language/llama3_1-8b/) (TBD) for an automated way to run this benchmark across different available implementations and do an end-to-end submission with or without docker.
+Please see the [new docs site](https://docs.mlcommons.org/inference/benchmarks/language/llama3_1-8b/) for an automated way to run this benchmark across different available implementations and do an end-to-end submission with or without docker.
 
 You can also do pip install mlc-scripts and then use `mlcr` commands for downloading the model and datasets using the commands given in the later sections.
 
@@ -99,7 +99,10 @@ pip install -e ../../loadgen
 ## Get Model
 ### MLCommons Members Download (Recommended for official submission)
 
-You need to request for access to [MLCommons](http://llama3-1.mlcommons.org/) and you'll receive an email with the download instructions. You can download the model automatically via the below command
+You need to request for access to [MLCommons](http://llama3-1.mlcommons.org/) and you'll receive an email with the download instructions. 
+
+**Official Model download using MLCFlow Automation**
+You can download the model automatically via the below command
 ```
 TBD
 ```
@@ -113,6 +116,12 @@ export CHECKPOINT_PATH=meta-llama/Llama-3.1-8B-Instruct
 git lfs install
 git clone https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct ${CHECKPOINT_PATH}
 cd ${CHECKPOINT_PATH} && git checkout be673f326cab4cd22ccfef76109faf68e41aa5f1
+```
+
+**External Model download using MLCFlow Automation**
+You can download the model automatically via the below command
+```
+mlcr get,ml-model,llama3,_hf,_meta-llama/Llama-3.1-8B-Instruct --hf_token=<huggingface access token> -j
 ```
 
 ### Download huggingface model through MLC
@@ -142,35 +151,45 @@ rclone config create mlc-inference s3 provider=Cloudflare access_key_id=f65ba5ee
 You can then navigate in the terminal to your desired download directory and run the following command to download the dataset:
 
 #### Full dataset (datacenter) 
+
+**Using MLCFlow Automation**
+```
+mlcr get,dataset,cnndm,_validation,_datacenter,_llama3,_mlc,_rclone --outdirname=<path to download> -j
+```
+
+**Native method**
 ```
 rclone copy mlc-inference:mlcommons-inference-wg-public/llama3.1_8b/datasets/cnn_eval.json ./ -P
 ```
 
 #### 5000 samples (edge)
+
+**Using MLCFlow Automation**
 ```
-rclone copy mlc-inference:mlcommons-inference-wg-public/llama3.1_8b/datasets/sample_cnn_eval_5000.json ./ -P
+mlcr get,dataset,cnndm,_validation,_edge,_llama3,_mlc,_rclone --outdirname=<path to download> -j
+```
+
+**Native method**
+```
+rclone copy mlc-inference:mlcommons-inference-wg-public/llama3.1_8b/datasets/cnn_eval_5000.json ./ -P
 ```
 
 #### Calibration
+
+**Using MLCFlow Automation**
+```
+mlcr get,dataset,cnndm,_calibration,_llama3,_mlc,_rclone --outdirname=<path to download> -j
+```
+
+**Native method**
 ```
 rclone copy mlc-inference:mlcommons-inference-wg-public/llama3.1_8b/datasets/cnn_dailymail_calibration.json ./ -P
-```
-
-**MLC Command**
-
-```
-TBD
 ```
 
 You can also download the calibration dataset from the Cloudflare R2 bucket by running the following command:
 
 ```
 rclone copy mlc-inference:mlcommons-inference-wg-public/llama3.1_8b/cnn_eval.json ./ -P
-```
-
-**MLC Command**
-```
-TBD
 ```
 
 
@@ -181,7 +200,7 @@ TBD
 python -u main.py --scenario Offline \
                 --model-path ${CHECKPOINT_PATH} \
                 --batch-size 16 \
-                --dtype float16 \
+                --dtype bfloat16 \
                 --user-conf user.conf \
                 --total-sample-count 13368 \
                 --dataset-path ${DATASET_PATH} \
@@ -196,7 +215,7 @@ python -u main.py --scenario Offline \
 python -u main.py --scenario Server \
                 --model-path ${CHECKPOINT_PATH} \
                 --batch-size 16 \
-                --dtype float16 \
+                --dtype bfloat16 \
                 --user-conf user.conf \
                 --total-sample-count 13368 \
                 --dataset-path ${DATASET_PATH} \
@@ -219,7 +238,7 @@ python -u main.py --scenario Offline \
                 --model-path ${CHECKPOINT_PATH} \
                 --batch-size 16 \
                 --accuracy \
-                --dtype float16 \
+                --dtype bfloat16 \
                 --user-conf user.conf \
                 --total-sample-count 13368 \
                 --dataset-path ${DATASET_PATH} \
@@ -246,7 +265,7 @@ python -u main.py --scenario Server \
                 --model-path ${CHECKPOINT_PATH} \
                 --batch-size 16 \
                 --accuracy \
-                --dtype float16 \
+                --dtype bfloat16 \
                 --user-conf user.conf \
                 --total-sample-count 13368 \
                 --dataset-path ${DATASET_PATH} \
@@ -263,14 +282,52 @@ fi
 
 The ServerSUT was not tested for GPU runs.
 
+### Edge
+```
+OUTPUT_LOG_DIR=offline-accuracy-logs
+
+mkdir -p "run_outputs"  # The script will dump all the outputs to 'run_outputs'.
+
+python -u main.py --lg-model-name llama3_1-8b-edge \       
+                --scenario Offline \
+                --model-path ${CHECKPOINT_PATH} \
+                --batch-size 16 \
+                --accuracy \
+                --dtype bfloat16 \
+                --user-conf user.conf \
+                --total-sample-count 13368 \
+                --dataset-path ${DATASET_PATH} \
+                --output-log-dir output \
+                --tensor-parallel-size ${GPU_COUNT} \
+                --vllm
+
+
+ACCURACY_LOG_FILE=${OUTPUT_LOG_DIR}/mlperf_log_accuracy.json
+if [ -e ${ACCURACY_LOG_FILE} ]; then
+        python evaluation.py --mlperf-accuracy-file ${ACCURACY_LOG_FILE} \
+                --dataset-file ${DATASET_PATH} --dtype int32
+fi
+```
+
+
 ### Evaluate the accuracy using MLCFlow
 You can also evaulate the accuracy from the generated accuracy log by using the following MLC command
+
+**Full dataset (datacenter)**
+
 ```
-TBD
+mlcr run,accuracy,mlperf,_cnndm_llama_3,_edge --result_dir=<Path to directory where files are generated after the benchmark run>
+```
+
+**5000 samples (edge)**
+
+```
+mlcr run,accuracy,mlperf,_cnndm_llama_3,_datacenter --result_dir=<Path to directory where files are generated after the benchmark run>
 ```
 
 ## Accuracy Target
-Running the GPU implementation in FP16 precision resulted in the following FP16 accuracy targets:
+### Datacenter
+Running the GPU implementation in BF16 precision resulted in the following BF16 accuracy targets:
 ```
 {
         'rouge1': 38.7792,
@@ -282,3 +339,16 @@ Running the GPU implementation in FP16 precision resulted in the following FP16 
 }
 ```
 The accuracy target is 99% for rouge1, rouge2, rougeL and rougeLsum, and 90% for gen_len
+
+### Edge
+Running the GPU implementation in BF16 precision resulted in the following BF16 accuracy targets:
+```
+{
+        'rouge1': 39.06,
+        'rouge2': 16.1147,
+        'rougeL': 24.6375,
+        'rougeLsum': 36.124,
+        'gen_len': 3051113,
+        'gen_num': 5000,
+}
+```
